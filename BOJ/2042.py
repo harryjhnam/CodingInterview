@@ -1,35 +1,42 @@
 # https://www.acmicpc.net/problem/2042
 # 구간 합 구하기
 
-
-def update_sum(int_seq, accum_sum, b, c):
-
-  diff = int_seq[b] - c
-  for i in range(b, len(accum_sum)):
-    accum_sum[i] -= diff
-
-  int_seq[b] = c
-
-  return int_seq, accum_sum
-
-
 n, m, k = map(int, input().split())
-int_seq = [None]
-accum_sum = [None]
-accum = 0
-for _ in range(n):
-  i = int(input())
-  int_seq.append(i)
-  accum += i
-  accum_sum.append(accum)
+arr = [0] * (n + 1)
+tree = [0] * (n + 1)
+
+
+def update(i, diff):
+  while i <= n:
+    tree[i] += diff
+    i += (i & -i)
+
+
+def prefix_sum(i):
+  res = 0
+  while i > 0:
+    res += tree[i]
+    i -= (i & -i)
+  return res
+
+
+def interval_sum(i, j):
+  return prefix_sum(j) - prefix_sum(i - 1)
+
+
+for i in range(1, n + 1):
+  x = int(input())
+  arr[i] = x
+  update(i, x)
 
 res = []
 for _ in range(m + k):
   a, b, c = map(int, input().split())
   if a == 1:
-    int_seq, accum_sum = update_sum(int_seq, accum_sum, b, c)
+    update(b, c - arr[b])
+    arr[b] = c
   else:
-    res.append(accum_sum[c] - accum_sum[b - 1])
+    res.append(interval_sum(b, c))
 
 for r in res:
   print(r)
